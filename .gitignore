@@ -1,0 +1,3 @@
+# ข้อมูลคำสั่งซื้อของลูกค้า ห้ามขึ้น GitHub
+data/orders/*.php
+!data/orders/index.php
