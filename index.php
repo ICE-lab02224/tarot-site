@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/includes/functions.php';
-require_once __DIR__ . '/includes/cards.php';
 $pageTitle = $SITE['name'] . ' | ดูดวงไพ่ทาโรต์ออนไลน์';
 include __DIR__ . '/includes/header.php';
 ?>
@@ -14,6 +13,7 @@ include __DIR__ . '/includes/header.php';
 <!-- ===== ลูกเล่น: เลือกไพ่เอง ===== -->
 <section id="play" class="section">
   <h2>เปิดไพ่ฟรี 3 ใบ</h2>
+  <p class="center muted small">ฟรีวันละ 1 ครั้ง</p>
   <div id="step-topic">
     <p class="center">1. ตั้งจิตอธิษฐาน แล้วเลือกเรื่องที่อยากรู้</p>
     <div class="topics">
@@ -26,17 +26,16 @@ include __DIR__ . '/includes/header.php';
 
   <div id="step-pick" hidden>
     <p class="center">2. หายใจลึก ๆ แล้วเลือกไพ่ที่รู้สึกว่า "ใช่" <b id="pick-count">0</b>/3 ใบ</p>
-    <div class="center"><button id="btn-shuffle" class="btn btn-ghost btn-small">🔀 สับไพ่ใหม่</button></div>
     <div id="deck" class="deck"></div>
   </div>
 
   <div id="step-result" hidden>
     <p class="center">3. แตะที่ไพ่เพื่อเปิดทีละใบ</p>
+    <p class="center muted small" id="again-note" hidden>วันนี้คุณเปิดไพ่ฟรีไปแล้ว นี่คือไพ่ชุดเดิมของคุณ กลับมาเปิดใหม่ได้พรุ่งนี้</p>
     <div id="spread" class="spread"></div>
     <div id="summary" class="summary" hidden></div>
     <div class="center" id="result-actions" hidden>
       <a href="booking.php" class="btn">🔮 ดูดวงแบบเจาะลึก</a>
-      <button id="btn-again" class="btn btn-ghost">เปิดไพ่ใหม่อีกครั้ง</button>
     </div>
   </div>
 </section>
@@ -91,6 +90,5 @@ include __DIR__ . '/includes/header.php';
   <a href="<?= e($SITE['line_url']) ?>" class="btn btn-ghost" target="_blank" rel="noopener">สอบถามทาง LINE</a>
 </section>
 
-<script>window.TAROT_CARDS = <?= json_encode($CARDS, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?>;</script>
-<script src="assets/app.js?v=1"></script>
+<script src="assets/app.js?v=2"></script>
 <?php include __DIR__ . '/includes/footer.php'; ?>

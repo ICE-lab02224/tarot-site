@@ -1,105 +1,99 @@
 (function () {
-  var CARDS = window.TAROT_CARDS || [];
-  var POSITIONS = ['อดีต', 'ปัจจุบัน', 'อนาคต'];
-  var TOPIC_NAME = { love: 'ความรัก', work: 'การงาน', money: 'การเงิน', general: 'ภาพรวม' };
-  var topic = 'general', deck = [], picked = [], opened = 0;
   var $ = function (id) { return document.getElementById(id); };
+  var picked = 0, opened = 0, busy = false;
 
-  function shuffle(a) {
-    a = a.slice();
-    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
-    return a;
-  }
+  // ขอผลไพ่จากเซิร์ฟเวอร์ (สุ่มและจำกัดจำนวนครั้งที่ free.php)
+  var getReading = window.FREE_READING || function (topic) {
+    var body = new URLSearchParams({ topic: topic });
+    return fetch('free.php', { method: 'POST', body: body, credentials: 'same-origin' })
+      .then(function (r) { return r.json(); });
+  };
+
+  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
   function show(step) {
     ['step-topic', 'step-pick', 'step-result'].forEach(function (s) { $(s).hidden = s !== step; });
     $('play').scrollIntoView({ behavior: 'smooth' });
   }
 
-  function renderDeck() {
-    deck = shuffle(CARDS.map(function (_, i) { return i; }));
-    picked = [];
+  function renderDeck(topic) {
+    picked = 0; busy = false;
     $('pick-count').textContent = '0';
     var el = $('deck');
     el.innerHTML = '';
-    deck.forEach(function (cardIdx, i) {
+    for (var i = 0; i < 22; i++) {
       var b = document.createElement('div');
       b.className = 'back';
       b.textContent = '✦';
       b.style.animationDelay = (i * 0.03) + 's';
-      b.onclick = function () { pick(cardIdx, b); };
+      b.onclick = function () {
+        if (busy || picked >= 3 || this.classList.contains('picked')) return;
+        this.classList.add('picked');
+        $('pick-count').textContent = ++picked;
+        if (picked === 3) { busy = true; setTimeout(function () { fetchAndShow(topic); }, 600); }
+      };
       el.appendChild(b);
+    }
+  }
+
+  function fetchAndShow(topic) {
+    getReading(topic).then(function (res) {
+      if (res.status === 'limit') { renderLimit(); return; }
+      renderSpread(res.reading, res.status === 'again');
+    }).catch(function () {
+      $('spread').innerHTML = '<p class="center">เชื่อมต่อไม่สำเร็จ กรุณาลองใหม่อีกครั้ง</p>';
+      $('summary').hidden = true; $('result-actions').hidden = false;
+      show('step-result');
     });
   }
 
-  function pick(cardIdx, el) {
-    if (picked.length >= 3) return;
-    picked.push(cardIdx);
-    el.classList.add('picked');
-    $('pick-count').textContent = picked.length;
-    if (picked.length === 3) setTimeout(renderSpread, 600);
+  function renderLimit() {
+    $('spread').innerHTML = '';
+    var s = $('summary');
+    s.innerHTML = '<h3>🌙 วันนี้เปิดไพ่ฟรีครบแล้ว</h3><p>เปิดไพ่ฟรีได้วันละ 1 ครั้ง กลับมาใหม่พรุ่งนี้ หรือเลือกแพ็คเกจเริ่มต้นเพียง 29 บาท</p>';
+    s.hidden = false; $('result-actions').hidden = false;
+    show('step-result');
   }
 
-  function renderSpread() {
+  function renderSpread(r, again) {
     opened = 0;
     $('summary').hidden = true;
     $('result-actions').hidden = true;
+    $('again-note').hidden = !again;
     var sp = $('spread');
-    sp.innerHTML = '';
-    picked.forEach(function (idx, i) {
-      var c = CARDS[idx];
-      var slot = document.createElement('div');
-      slot.className = 'slot';
-      slot.innerHTML =
-        '<div class="slot-label">ใบที่ ' + (i + 1) + ' · ' + POSITIONS[i] + '</div>' +
-        '<div class="flip"><div class="flip-inner">' +
-          '<div class="face front-back">✦</div>' +
-          '<div class="face front"><div class="num">' + c.n + '</div><div class="sym">' + c.sym + '</div>' +
-          '<div class="en">' + c.en + '</div><div class="th">' + c.th + '</div></div>' +
-        '</div></div>' +
-        '<div class="meaning"><div class="kw">' + c.kw + '</div>' + c[topic] + '</div>';
-      var flip = slot.querySelector('.flip');
+    sp.innerHTML = r.cards.map(function (c, i) {
+      return '<div class="slot"><div class="slot-label">ใบที่ ' + (i + 1) + ' · ' + c.pos + '</div>' +
+        '<div class="flip"><div class="flip-inner"><div class="face front-back">✦</div>' +
+        '<div class="face front"><div class="num">' + esc(c.n) + '</div><div class="sym">' + c.sym + '</div>' +
+        '<div class="en">' + esc(c.en) + '</div><div class="th">' + esc(c.th) + '</div></div></div></div>' +
+        '<div class="meaning"><div class="kw">' + esc(c.kw) + '</div>' + esc(c.text) + '</div></div>';
+    }).join('');
+    sp.querySelectorAll('.flip').forEach(function (flip) {
       flip.onclick = function () {
         if (flip.classList.contains('open')) return;
         flip.classList.add('open');
-        opened++;
-        if (opened === 3) setTimeout(renderSummary, 1200);
+        if (++opened === 3) setTimeout(function () { renderSummary(r); }, 1200);
       };
-      sp.appendChild(slot);
     });
     show('step-result');
   }
 
-  function renderSummary() {
-    var cs = picked.map(function (i) { return CARDS[i]; });
-    var score = cs.reduce(function (s, c) { return s + c.tone; }, 0); // -3 ถึง 3
-    var pct = Math.round(((score + 3) / 6) * 70 + 25);              // 25% - 95%
-    var mood;
-    if (score >= 2) mood = 'พลังงานโดยรวมสดใสมาก ดวงเรื่อง' + TOPIC_NAME[topic] + 'ของคุณกำลังเป็นขาขึ้น สิ่งที่หวังไว้มีแนวโน้มเป็นไปในทางที่ดี';
-    else if (score >= 0) mood = 'พลังงานโดยรวมค่อนข้างดี เรื่อง' + TOPIC_NAME[topic] + 'มีทั้งโอกาสและบทเรียนปนกัน ถ้าตั้งใจและมีสติ ผลลัพธ์จะออกมาดี';
-    else mood = 'ไพ่ชุดนี้เตือนให้ระมัดระวังในเรื่อง' + TOPIC_NAME[topic] + 'เป็นพิเศษ แต่ไม่ใช่เรื่องร้าย เป็นสัญญาณให้เตรียมตัวและตั้งสติก่อนตัดสินใจ';
-
-    var story = 'จากอดีตที่เกี่ยวกับ <b>' + cs[0].kw.split(' ')[0] + '</b> (' + cs[0].th + ') ' +
-      'ส่งผลมาถึงปัจจุบันที่คุณกำลังอยู่กับ <b>' + cs[1].kw.split(' ')[0] + '</b> (' + cs[1].th + ') ' +
-      'และแนวโน้มข้างหน้าจะนำไปสู่ <b>' + cs[2].kw.split(' ')[0] + '</b> (' + cs[2].th + ')';
-
+  function renderSummary(r) {
     var s = $('summary');
     s.innerHTML =
-      '<h3>🔮 สรุปคำทำนายเรื่อง' + TOPIC_NAME[topic] + '</h3>' +
-      '<div class="small muted">พลังดวงโดยรวม ' + pct + '%</div>' +
+      '<h3>🔮 สรุปคำทำนายเรื่อง' + esc(r.topic_name) + '</h3>' +
+      '<div class="small muted">พลังดวงโดยรวม ' + r.pct + '%</div>' +
       '<div class="meter"><div style="width:0"></div></div>' +
-      '<p>' + mood + '</p><p>' + story + '</p>' +
-      '<p><b class="gold">คำแนะนำจากไพ่:</b> ' + cs[2].advice + '</p>' +
-      '<p class="small muted">นี่เป็นการอ่านไพ่แบบย่อ 3 ใบ ถ้าอยากเห็นภาพละเอียดขึ้น เช่น ใจเขา อุปสรรค หรือรายเดือนตลอดปี ลองแพ็คเกจเจาะลึกได้</p>';
+      '<p>' + esc(r.mood) + '</p>' +
+      '<div class="locked">🔒 การตีความตามตำแหน่งไพ่ จุดเด่น สิ่งที่ต้องระวัง คำแนะนำ และสี เลข วันมงคล มีในแบบเจาะลึก</div>' +
+      '<p class="small muted">เปิดไพ่ฟรีได้วันละ 1 ครั้ง</p>';
     s.hidden = false;
     $('result-actions').hidden = false;
-    setTimeout(function () { s.querySelector('.meter div').style.width = pct + '%'; }, 50);
+    setTimeout(function () { s.querySelector('.meter div').style.width = r.pct + '%'; }, 50);
     s.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   document.querySelectorAll('.topic').forEach(function (b) {
-    b.onclick = function () { topic = b.getAttribute('data-topic'); renderDeck(); show('step-pick'); };
+    b.onclick = function () { renderDeck(b.getAttribute('data-topic')); show('step-pick'); };
   });
-  $('btn-shuffle').onclick = renderDeck;
-  $('btn-again').onclick = function () { show('step-topic'); };
 })();

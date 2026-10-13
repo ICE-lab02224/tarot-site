@@ -103,3 +103,23 @@ function build_reading(array $order) {
 
     return compact('items', 'pct', 'overall', 'highlight', 'caution', 'answer', 'lucky') + ['advice' => $last['advice'], 'topic' => $tn];
 }
+
+// คำทำนายฟรีแบบย่อ (หน้าแรก) ตั้งใจให้สั้นกว่าแบบเสียเงิน
+function build_free_reading(array $cards, $topic) {
+    global $CARDS, $TOPIC_NAMES;
+    $pos = ['อดีต', 'ปัจจุบัน', 'อนาคต'];
+    $out = ['topic' => $topic, 'topic_name' => $TOPIC_NAMES[$topic], 'cards' => []];
+    $score = 0;
+    foreach ($cards as $i => $ci) {
+        $c = $CARDS[$ci];
+        $out['cards'][] = ['pos' => $pos[$i], 'n' => $c['n'], 'en' => $c['en'], 'th' => $c['th'], 'sym' => $c['sym'],
+                           'kw' => $c['kw'], 'text' => $c[$topic]];
+        $score += $c['tone'];
+    }
+    $tn = $TOPIC_NAMES[$topic];
+    $out['pct'] = (int)round((($score + 3) / 6) * 70 + 25);
+    if ($score >= 2)      $out['mood'] = "พลังงานโดยรวมสดใสมาก ดวงเรื่อง{$tn}ของคุณกำลังเป็นขาขึ้น";
+    elseif ($score >= 0)  $out['mood'] = "พลังงานโดยรวมค่อนข้างดี เรื่อง{$tn}มีทั้งโอกาสและบทเรียนปนกัน";
+    else                  $out['mood'] = "ไพ่ชุดนี้เตือนให้ระมัดระวังเรื่อง{$tn}เป็นพิเศษ เป็นสัญญาณให้ตั้งสติก่อนตัดสินใจ";
+    return $out;
+}
