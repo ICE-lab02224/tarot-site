@@ -81,7 +81,7 @@ include __DIR__ . '/includes/header.php';
     <label>วันเกิด (ไม่บังคับ)<input type="date" name="birth" value="<?= e($old['birth']) ?>"></label>
     <label>คำถามที่อยากรู้ *<textarea name="question" rows="4" required placeholder="เช่น ความรักกับคนที่คุยอยู่จะไปต่อได้ไหม"><?= e($old['question']) ?></textarea></label>
     <button class="btn btn-block">ไปหน้าชำระเงิน</button>
-    <p class="muted small center">ข้อมูลของคุณจะถูกเก็บเป็นความลับ ใช้เพื่อการดูดวงเท่านั้น</p>
+    <p class="muted small center">คำทำนายสร้างโดยระบบอัตโนมัติจากไพ่ที่คุณเลือก ข้อมูลของคุณเก็บเป็นความลับ</p>
   </form>
 </section>
 <script>

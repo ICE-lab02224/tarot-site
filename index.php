@@ -6,7 +6,7 @@ include __DIR__ . '/includes/header.php';
 ?>
 <section class="hero">
   <h1>ไพ่ทาโรต์รู้ใจ<br><span class="gold">ตอบทุกคำถามที่คุณสงสัย</span></h1>
-  <p class="lead"><?= e($SITE['tagline']) ?><br>ลองเปิดไพ่ 3 ใบฟรีด้านล่าง แล้วให้<?= e($SITE['reader']) ?>อ่านไพ่ให้คุณแบบเจาะลึก</p>
+  <p class="lead"><?= e($SITE['tagline']) ?><br>ลองเปิดไพ่ 3 ใบฟรีด้านล่าง ถ้าถูกใจค่อยเลือกแพ็คเกจที่ดูละเอียดขึ้น</p>
   <a href="#play" class="btn">✨ เปิดไพ่ฟรีตอนนี้</a>
   <a href="#packages" class="btn btn-ghost">ดูแพ็คเกจ</a>
 </section>
@@ -44,7 +44,7 @@ include __DIR__ . '/includes/header.php';
 <!-- ===== แพ็คเกจ ===== -->
 <section id="packages" class="section">
   <h2>แพ็คเกจดูดวง</h2>
-  <p class="center muted">ทุกแพ็คเกจอ่านไพ่โดย<?= e($SITE['reader']) ?> เปิดไพ่เองได้ตลอด 24 ชม. รู้ผลทันที</p>
+  <p class="center muted">ทุกแพ็คเกจเลือกไพ่เองได้ตลอด 24 ชม. ระบบแปลความหมายไพ่ให้ทันที</p>
   <div class="packages">
     <?php foreach ($PACKAGES as $p): ?>
     <div class="pkg<?= $p['popular'] ? ' popular' : '' ?>">
@@ -73,7 +73,8 @@ include __DIR__ . '/includes/header.php';
   </div>
 </section>
 
-<!-- ===== รีวิว ===== -->
+<!-- ===== รีวิว (แสดงเมื่อมีรีวิวจริงใน config.php) ===== -->
+<?php if ($REVIEWS): ?>
 <section class="section">
   <h2>เสียงจากลูกค้า</h2>
   <div class="reviews">
@@ -82,6 +83,7 @@ include __DIR__ . '/includes/header.php';
     <?php endforeach; ?>
   </div>
 </section>
+<?php endif; ?>
 
 <section class="section cta">
   <h2>พร้อมรู้คำตอบแล้วหรือยัง?</h2>

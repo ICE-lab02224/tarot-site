@@ -90,7 +90,7 @@
       '<div class="meter"><div style="width:0"></div></div>' +
       '<p>' + mood + '</p><p>' + story + '</p>' +
       '<p><b class="gold">คำแนะนำจากไพ่:</b> ' + cs[2].advice + '</p>' +
-      '<p class="small muted">นี่เป็นการอ่านไพ่อัตโนมัติแบบย่อ หากอยากรู้ลึกถึงคำถามเฉพาะของคุณ ให้อาจารย์ตั้งจิตเปิดไพ่ให้โดยตรง</p>';
+      '<p class="small muted">นี่เป็นการอ่านไพ่แบบย่อ 3 ใบ ถ้าอยากเห็นภาพละเอียดขึ้น เช่น ใจเขา อุปสรรค หรือรายเดือนตลอดปี ลองแพ็คเกจเจาะลึกได้</p>';
     s.hidden = false;
     $('result-actions').hidden = false;
     setTimeout(function () { s.querySelector('.meter div').style.width = pct + '%'; }, 50);

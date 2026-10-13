@@ -74,7 +74,7 @@ $link = base_url() . '/order.php?o=' . $token;
   <div class="card-box narrow center">
     <div style="font-size:3rem">📞</div>
     <h2>ชำระเงินเรียบร้อย</h2>
-    <p>แพ็คเกจนี้เป็นการคุยสดกับ<?= e($SITE['reader']) ?> กรุณาแอดไลน์เพื่อนัดวันเวลาที่สะดวก<br>แจ้งหมายเลขคำสั่งซื้อ <b class="gold"><?= e($order['id']) ?></b></p>
+    <p>กรุณาแอดไลน์เพื่อนัดวันเวลาที่สะดวก<br>แจ้งหมายเลขคำสั่งซื้อ <b class="gold"><?= e($order['id']) ?></b></p>
     <a href="<?= e($SITE['line_url']) ?>" class="btn" target="_blank" rel="noopener">💬 นัดเวลาทาง LINE</a>
   </div>
 
@@ -120,7 +120,7 @@ $link = base_url() . '/order.php?o=' . $token;
   <div class="card-box narrow center small">
     <p>🔖 บันทึกลิงก์นี้ไว้ เพื่อกลับมาอ่านคำทำนายได้ทุกเมื่อ</p>
     <input class="link-box" value="<?= e($link) ?>" readonly onclick="this.select()">
-    <p><a href="<?= e($SITE['line_url']) ?>" target="_blank" rel="noopener">มีคำถามเพิ่มเติม ทักไลน์ <?= e($SITE['line_id']) ?></a></p>
+    <p><a href="<?= e($SITE['line_url']) ?>" target="_blank" rel="noopener">ติดปัญหาการใช้งาน ทักไลน์ <?= e($SITE['line_id']) ?></a></p>
   </div>
 <?php endif; ?>
 </section>
